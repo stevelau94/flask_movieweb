@@ -1,14 +1,6 @@
 # coding: utf8
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-import pymysql
-
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:root@127.0.0.1:3306/movie"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
-
-db = SQLAlchemy(app)
+from app import db
 
 
 # 会员数据模型
@@ -182,8 +174,8 @@ class Oplog(db.Model):
         return "<Oplog log %r" % self.id
 
 
-if __name__ == "__main__":
-    pass
+# if __name__ == "__main__":
+#     pass
     # db.create_all()  # 在mysql创建好movie database的前提下 使用这个语句创建所有表
 
     # 测试数据1
