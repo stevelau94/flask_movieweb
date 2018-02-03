@@ -148,6 +148,10 @@ class Admin(db.Model):
     def __repr__(self):
         return "<Admin %r>" % self.name
 
+    def check_pwd(self, pwd):
+        from werkzeug.security import check_password_hash
+        return check_password_hash(self.pwd, pwd)
+
 
 # 管理员登陆日志
 class Adminlog(db.Model):
@@ -173,26 +177,25 @@ class Oplog(db.Model):
     def __repr__(self):
         return "<Oplog log %r" % self.id
 
-
 # if __name__ == "__main__":
 #     pass
-    # db.create_all()  # 在mysql创建好movie database的前提下 使用这个语句创建所有表
+# db.create_all()  # 在mysql创建好movie database的前提下 使用这个语句创建所有表
 
-    # 测试数据1
-    # role = Role(
-    #     name="superadmin",
-    #     auths=""
-    # )
-    # db.session.add(role)
-    # db.session.commit()
+# 测试数据1
+# role = Role(
+#     name="superadmin",
+#     auths=""
+# )
+# db.session.add(role)
+# db.session.commit()
 
-    # 测试数据2
-    # from werkzeug.security import generate_password_hash  # 保护密码
-    # admin = Admin(
-    #     name='test',
-    #     pwd=generate_password_hash('test'),
-    #     is_super=0,
-    #     role_id=1
-    # )
-    # db.session.add(admin)
-    # db.session.commit()
+# 测试数据2
+# from werkzeug.security import generate_password_hash  # 保护密码
+# admin = Admin(
+#     name='test',
+#     pwd=generate_password_hash('test'),
+#     is_super=0,
+#     role_id=1
+# )
+# db.session.add(admin)
+# db.session.commit()
