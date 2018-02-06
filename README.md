@@ -18,10 +18,17 @@
     1. **实现访问控制**(未登录情况下不能进入管理界面)
 
 1. 第四版关注电影标签管理功能
-    1. wtform构建Tagform，使用jinja2更新HTML
+    1. wtforms构建Tagform，使用jinja2更新HTML
     1. tag_add路由功能实现，数据对比，数据入库
     1. tag_add消息闪现功能
     1. tag_list路由功能实现
     1. **分页处理** 这里是[相关函数文档](http://www.pythondoc.com/flask-sqlalchemy/api.html)
     1. tag_del标签删除实现
     1. 最后实现了tag_edit功能
+
+1. 第五版关注电影管理功能
+    1. 使用wtforms创建文本框，文件传输框，下拉框，日期选择框等相关组件
+    1. 表单内容存储操作
+    1. **文件上传**
+    1. 电影管理(删除,编辑)功能
+    1. 编辑功能稍微复杂
