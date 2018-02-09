@@ -3,13 +3,22 @@
 from . import admin
 from flask import render_template, redirect, url_for, flash, session, request
 from app.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm, PwdForm
-from app.models import Admin, Tag, Movie, Preview, User, Comment,Moviecol
+from app.models import Admin, Tag, Movie, Preview, User, Comment, Moviecol, Oplog, Adminlog, Userlog
 from functools import wraps
 from app import db, app
 from werkzeug.utils import secure_filename
 import os
 import uuid
 import datetime
+
+
+# 上下文处理器
+@admin.context_processor
+def tpl_extra():
+    data = dict(  # 上下文处理器将变量转换为全局变量,可以直接在模板中使用
+        online_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # admin.html中调用
+    )
+    return data
 
 
 # 访问控制
@@ -48,6 +57,16 @@ def login():
             flash("密码错误！", "error")
             return redirect(url_for("admin.login"))
         session["admin"] = data["account"]  # 若密码正确则保存会话
+
+        session["admin_id"] = admin.id  # 记录id 供oplogs使用
+
+        # adminlog 记录登陆记录
+        adminlog = Adminlog(
+            admin_id=admin.id,
+            ip=request.remote_addr
+        )
+        db.session.add(adminlog)
+        db.session.commit()
         return redirect(request.args.get('next') or url_for("admin.index"))
     return render_template("admin/login.html", form=form)
 
@@ -56,6 +75,7 @@ def login():
 @admin_login_req
 def logout():
     session.pop("admin", None)  # 退出系统 会话删掉admin
+    session.pop("admin_id", None)
     return redirect(url_for("admin.login"))
 
 
@@ -95,6 +115,14 @@ def tag_add():
         db.session.add(tag)
         db.session.commit()
         flash("添加标签成功！", "ok")
+        # 存入日志model
+        oplog = Oplog(
+            admin_id=session["admin_id"],
+            ip=request.remote_addr,
+            reason="添加标签%s" % data["name"]
+        )
+        db.session.add(oplog)
+        db.session.commit()
         redirect(url_for("admin.tag_add"))
     return render_template("admin/tag_add.html", form=form)
 
@@ -383,7 +411,7 @@ def comment_del(id=None):
     return redirect(url_for('admin.comment_list', page=1))
 
 
-@admin.route("/moviecol/list/<int:page>/",methods=["GET"])
+@admin.route("/moviecol/list/<int:page>/", methods=["GET"])
 @admin_login_req
 def moviecol_list(page=None):
     if page is None:
@@ -398,7 +426,8 @@ def moviecol_list(page=None):
     ).order_by(  # 数据库查询
         Moviecol.addtime.desc()
     ).paginate(page=page, per_page=5)
-    return render_template("admin/moviecol_list.html",page_data=page_data)
+    return render_template("admin/moviecol_list.html", page_data=page_data)
+
 
 @admin.route("/moviecol/del/<int:id>/", methods=["GET"])
 @admin_login_req
@@ -410,22 +439,50 @@ def moviecol_del(id=None):
     return redirect(url_for('admin.moviecol_list', page=1))
 
 
-@admin.route("/oplog/list")
+# 操作日志
+@admin.route("/oplog/list/<int:page>/", methods=["GET"])
 @admin_login_req
-def oplog_list():
-    return render_template("admin/oplog_list.html")
+def oplog_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Oplog.query.join(
+        Admin
+    ).filter(
+        Admin.id == Oplog.admin_id,
+    ).order_by(  # 数据库查询
+        Oplog.addtime.desc()
+    ).paginate(page=page, per_page=5)
+    return render_template("admin/oplog_list.html", page_data=page_data)
 
 
-@admin.route("/adminloginlog/list")
+@admin.route("/adminloginlog/list/<int:page>/", methods=["GET"])
 @admin_login_req
-def adminloginlog_list():
-    return render_template("admin/adminloginlog_list.html")
+def adminloginlog_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Adminlog.query.join(
+        Admin
+    ).filter(
+        Admin.id == Adminlog.admin_id,
+    ).order_by(  # 数据库查询
+        Adminlog.addtime.desc()
+    ).paginate(page=page, per_page=5)
+    return render_template("admin/adminloginlog_list.html", page_data=page_data)
 
 
-@admin.route("/userloginlog/list")
+@admin.route("/userloginlog/list/<int:page>/", methods=["GET"])
 @admin_login_req
-def userloginlog_list():
-    return render_template("admin/userloginlog_list.html")
+def userloginlog_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Userlog.query.join(
+        User
+    ).filter(
+        User.id == Userlog.user_id,
+    ).order_by(  # 数据库查询
+        Userlog.addtime.desc()
+    ).paginate(page=page, per_page=5)
+    return render_template("admin/userloginlog_list.html", page_data=page_data)
 
 
 @admin.route("/auth/add")
