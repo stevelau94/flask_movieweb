@@ -3,7 +3,7 @@
 from . import admin
 from flask import render_template, redirect, url_for, flash, session, request
 from app.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm, PwdForm
-from app.models import Admin, Tag, Movie, Preview, User
+from app.models import Admin, Tag, Movie, Preview, User, Comment,Moviecol
 from functools import wraps
 from app import db, app
 from werkzeug.utils import secure_filename
@@ -45,7 +45,7 @@ def login():
         data = form.data
         admin = Admin.query.filter_by(name=data["account"]).first()
         if not admin.check_pwd(data["pwd"]):
-            flash("密码错误！","error")
+            flash("密码错误！", "error")
             return redirect(url_for("admin.login"))
         session["admin"] = data["account"]  # 若密码正确则保存会话
         return redirect(request.args.get('next') or url_for("admin.index"))
@@ -73,9 +73,9 @@ def pwd():
 
         db.session.add(admin)
         db.session.commit()
-        flash("修改密码成功! 请重新登陆!","ok")
+        flash("修改密码成功! 请重新登陆!", "ok")
         redirect(url_for('admin.logout'))
-    return render_template("admin/pwd.html",form=form)
+    return render_template("admin/pwd.html", form=form)
 
 
 # 添加标签
@@ -355,16 +355,59 @@ def user_del(id=None):
     return redirect(url_for('admin.user_list', page=1))
 
 
-@admin.route("/comment/list")
+@admin.route("/comment/list/<int:page>/", methods=["GET"])
 @admin_login_req
-def comment_list():
-    return render_template("admin/comment_list.html")
+def comment_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Comment.query.join(
+        Movie
+    ).join(
+        User
+    ).filter(
+        Movie.id == Comment.movie_id,
+        User.id == Comment.user_id
+    ).order_by(  # 数据库查询
+        Comment.addtime.desc()
+    ).paginate(page=page, per_page=5)
+    return render_template("admin/comment_list.html", page_data=page_data)
 
 
-@admin.route("/moviecol/list")
+@admin.route("/comment/del/<int:id>/", methods=["GET"])
 @admin_login_req
-def moviecol_list():
-    return render_template("admin/moviecol_list.html")
+def comment_del(id=None):
+    comment = Comment.query.get_or_404(int(id))
+    db.session.delete(comment)
+    db.session.commit()
+    flash("删除评论成功！", "ok")
+    return redirect(url_for('admin.comment_list', page=1))
+
+
+@admin.route("/moviecol/list/<int:page>/",methods=["GET"])
+@admin_login_req
+def moviecol_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Moviecol.query.join(
+        Movie
+    ).join(
+        User
+    ).filter(
+        Movie.id == Moviecol.movie_id,
+        User.id == Moviecol.user_id
+    ).order_by(  # 数据库查询
+        Moviecol.addtime.desc()
+    ).paginate(page=page, per_page=5)
+    return render_template("admin/moviecol_list.html",page_data=page_data)
+
+@admin.route("/moviecol/del/<int:id>/", methods=["GET"])
+@admin_login_req
+def moviecol_del(id=None):
+    moviecol = Moviecol.query.get_or_404(int(id))
+    db.session.delete(moviecol)
+    db.session.commit()
+    flash("删除评论成功！", "ok")
+    return redirect(url_for('admin.moviecol_list', page=1))
 
 
 @admin.route("/oplog/list")
