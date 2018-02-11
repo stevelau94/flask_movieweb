@@ -6,7 +6,7 @@
             <span>首页</span>
             <span class="label label-primary pull-right">1</span>
         </a>
-        <ul class="treeview-menu" >
+        <ul class="treeview-menu">
             <li id="g-1-1">
                 <a href="{{ url_for('admin.index') }}">
                     <i class="fa fa-circle-o"></i> 控制面板
@@ -20,7 +20,7 @@
             <span>标签管理</span>
             <span class="label label-primary pull-right">2</span>
         </a>
-        <ul class="treeview-menu" >
+        <ul class="treeview-menu">
             <li id="g-2-1">
                 <a href="{{ url_for('admin.tag_add') }}">
                     <i class="fa fa-circle-o"></i> 添加标签
@@ -105,7 +105,7 @@
             <span>收藏管理</span>
             <span class="label label-primary pull-right">1</span>
         </a>
-        <ul class="treeview-menu" >
+        <ul class="treeview-menu">
             <li id="g-7-1">
                 <a href="{{ url_for('admin.moviecol_list',page=1) }}">
                     <i class="fa fa-circle-o"></i> 收藏列表
@@ -119,7 +119,7 @@
             <span>日志管理</span>
             <span class="label label-primary pull-right">3</span>
         </a>
-        <ul class="treeview-menu" >
+        <ul class="treeview-menu">
             <li id="g-8-1">
                 <a href="{{ url_for('admin.oplog_list',page=1) }}">
                     <i class="fa fa-circle-o"></i> 操作日志列表
@@ -143,14 +143,14 @@
             <span>权限管理</span>
             <span class="label label-primary pull-right">2</span>
         </a>
-        <ul class="treeview-menu" >
+        <ul class="treeview-menu">
             <li id="g-9-1">
                 <a href="{{ url_for('admin.auth_add') }}">
                     <i class="fa fa-circle-o"></i> 添加权限
                 </a>
             </li>
             <li id="g-9-2">
-                <a href="{{ url_for('admin.auth_list') }}">
+                <a href="{{ url_for('admin.auth_list',page=1) }}">
                     <i class="fa fa-circle-o"></i> 权限列表
                 </a>
             </li>
@@ -162,14 +162,14 @@
             <span>角色管理</span>
             <span class="label label-primary pull-right">2</span>
         </a>
-        <ul class="treeview-menu" >
+        <ul class="treeview-menu">
             <li id="g-10-1">
                 <a href="{{ url_for('admin.role_add') }}">
                     <i class="fa fa-circle-o"></i> 添加角色
                 </a>
             </li>
             <li id="g-10-2">
-                <a href="{{ url_for('admin.role_list') }}">
+                <a href="{{ url_for('admin.role_list',page=1) }}">
                     <i class="fa fa-circle-o"></i> 角色列表
                 </a>
             </li>
@@ -181,14 +181,14 @@
             <span>管理员管理</span>
             <span class="label label-primary pull-right">2</span>
         </a>
-        <ul class="treeview-menu" >
+        <ul class="treeview-menu">
             <li id="g-11-1">
                 <a href="{{ url_for('admin.admin_add') }}">
                     <i class="fa fa-circle-o"></i> 添加管理员
                 </a>
             </li>
             <li id="g-11-2">
-                <a href="{{ url_for('admin.admin_list') }}">
+                <a href="{{ url_for('admin.admin_list',page=1) }}">
                     <i class="fa fa-circle-o"></i> 管理员列表
                 </a>
             </li>
