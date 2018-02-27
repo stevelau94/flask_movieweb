@@ -44,7 +44,7 @@ def admin_auth(f):
             Admin.id == session['admin_id']
         ).first()
         auths = admin.role.auths
-        auths = list(map(lambda v: int(v), auths.split(',')))
+        auths = list(map(lambda v: int(v), auths.split(",")))
         auth_list = Auth.query.all()
         urls = [v.url for v in auth_list for val in auths if val == v.id]
         rule = request.url_rule
