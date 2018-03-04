@@ -11,6 +11,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 app.config["SECRET_KEY"] = '3995f3a8156d4bb5a28fea58bcc90ed7'
 # 使用绝对路径abspath
 app.config["UP_DIR"] = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static/uploads/")
+app.config["UserFace_DIR"] = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static/uploads/users/")
+
 app.debug = True
 
 db = SQLAlchemy(app)
