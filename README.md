@@ -60,9 +60,13 @@
     1. 管理员管理(表单,添加,删除,修改)
     1. 访问权限控制admin_auth,按角色权限赋予权限
 
-1. 关于前台页面
+1. 关于前台用户页面
     1. 会员注册(form,page,route)
     1. 会员登陆(form,page,route)
     1. **一定要加这个！！！enctype="multipart/form-data" 否则FileField的data属性不是FileStorage**
     1. 会员修改密码
     1. 会员登陆日志
+
+1. 网站首页
+    1. 预感幻灯片
+    1. 主页电影**标签筛选功能**

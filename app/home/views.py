@@ -3,7 +3,7 @@
 from . import home
 from flask import render_template, redirect, url_for, flash, session, request
 from app.home.forms import RegistForm, LoginForm, UserdetialForm, PwdForm
-from app.models import User, Userlog
+from app.models import User, Userlog, Preview, Tag, Movie
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from app import db, app
@@ -33,9 +33,64 @@ def change_filename(filename):
     return filename
 
 
-@home.route("/")
-def index():
-    return render_template("home/index.html")
+@home.route("/", methods=['GET'])
+def index(page=None):
+    tags = Tag.query.all()
+    page_data = Movie.query
+    # 标签
+    tid = request.args.get('tid', 0)
+    if int(tid) != 0:
+        page_data = page_data.filter_by(tag_id=int(tid))
+    # 星级
+    star = request.args.get('star', 0)
+    if int(star) != 0:
+        page_data = page_data.filter_by(tag_id=int(star))
+    # 上映时间
+    time = request.args.get('time', 0)
+    if int(time) != 0:
+        if int(time) == 1:
+            page_data = page_data.order_by(
+                Movie.addtime.desc()
+            )
+        else:
+            page_data = page_data.order_by(
+                Movie.addtime.asc()  # 升序
+            )
+    # 播放量
+    play_num = request.args.get('play_num', 0)
+    if int(play_num) != 0:
+        if int(play_num) == 1:
+            page_data = page_data.order_by(
+                Movie.playnum.desc()
+            )
+        else:
+            page_data = page_data.order_by(
+                Movie.playnum.asc()  # 升序
+            )
+    # 评论量
+    comment_num = request.args.get('comment_num', 0)
+    if int(comment_num) != 0:
+        if int(comment_num) == 1:
+            page_data = page_data.order_by(
+                Movie.commentnum.desc()
+            )
+        else:
+            page_data = page_data.order_by(
+                Movie.commentnum.asc()  # 升序
+            )
+    # 分页
+    if page is None:
+        page = 1
+    page_data = page_data.paginate(page=page, per_page=10)
+
+    p = dict(
+        tid=tid,
+        star=star,
+        time=time,
+        play_num=play_num,
+        comment_num=comment_num
+    )
+    return render_template("home/index.html", tags=tags, p=p, page_data=page_data)
 
 
 @home.route("/login/", methods=['GET', 'POST'])
@@ -175,9 +230,11 @@ def moviecol():
     return render_template("home/moviecol.html")
 
 
+# 上映预告
 @home.route("/animation/")
 def animation():
-    return render_template("home/animation.html")
+    data = Preview.query.all()
+    return render_template("home/animation.html", data=data)
 
 
 @home.route("/search/")
