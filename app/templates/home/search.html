@@ -13,14 +13,15 @@
             {% for page_datum in page_data.items %}
                 <div class="media">
                     <div class="media-left">
-                        <a href="{{ url_for('home.play') }}">
+                        <a href="{{ url_for('home.play',id=page_datum.id,page=1) }}">
                             <img class="media-object" src="{{ url_for('static',filename='uploads/'+page_datum.logo) }}"
                                  style="width: 131px;height: 83px;" alt="{{ page_datum.title }}">
                         </a>
                     </div>
                     <div class="media-body">
-                        <h4 class="media-heading">{{ page_datum.title }}<a href="{{ url_for('home.play') }}"
-                                                                           class="label label-primary pull-right"><span
+                        <h4 class="media-heading">{{ page_datum.title }}<a
+                                href="{{ url_for('home.play',id=page_datum.id,page=1) }}"
+                                class="label label-primary pull-right"><span
                                 class="glyphicon glyphicon-play"></span>播放影片</a></h4>
                         {{ page_datum.info }}
                     </div>

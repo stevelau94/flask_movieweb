@@ -2,8 +2,8 @@
 
 from . import home
 from flask import render_template, redirect, url_for, flash, session, request
-from app.home.forms import RegistForm, LoginForm, UserdetialForm, PwdForm
-from app.models import User, Userlog, Preview, Tag, Movie
+from app.home.forms import RegistForm, LoginForm, UserdetialForm, PwdForm, CommentForm
+from app.models import User, Userlog, Preview, Tag, Movie, Comment
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from app import db, app
@@ -205,10 +205,22 @@ def pwd():
     return render_template("home/pwd.html", form=form)
 
 
-@home.route("/comments/")
+@home.route("/comments/<int:page>/")
 @user_login_req
-def comments():
-    return render_template("home/comments.html")
+def comments(page=None):
+    if page is None:
+        page = 1
+    page_data = Comment.query.join(
+        Movie
+    ).join(
+        User
+    ).filter(
+        Movie.id == Comment.movie_id,
+        User.id == session['user_id']
+    ).order_by(  # 数据库查询
+        Comment.addtime.desc()
+    ).paginate(page=page, per_page=5)
+    return render_template("home/comments.html",page_data=page_data)
 
 
 @home.route("/loginlog/<int:page>/", methods=["GET"])
@@ -255,6 +267,42 @@ def search(page=None):
     return render_template("home/search.html", key=key, page_data=page_data, movie_count=movie_count)
 
 
-@home.route("/play/")
-def play():
-    return render_template("home/play.html")
+@home.route("/play/<int:id>/<int:page>/", methods=['GET', 'POST'])
+def play(id=None, page=None):
+    movie = Movie.query.join(Tag).filter(
+        Tag.id == Movie.tag_id,
+        Movie.id == int(id)
+    ).first_or_404()
+
+    if page is None:
+        page = 1
+    page_data = Comment.query.join(
+        Movie
+    ).join(
+        User
+    ).filter(
+        Movie.id == movie.id,
+        User.id == Comment.user_id
+    ).order_by(  # 数据库查询
+        Comment.addtime.desc()
+    ).paginate(page=page, per_page=5)
+
+    movie.playnum = movie.playnum + 1
+
+    form = CommentForm()
+    if "user" in session and form.validate_on_submit():
+        data = form.data
+        comment = Comment(
+            content=data['content'],
+            movie_id=movie.id,
+            user_id=session['user_id']
+        )
+        db.session.add(comment)
+        db.session.commit()
+        movie.commentnum = movie.commentnum + 1
+        flash('添加评论成功！', 'ok')
+        return redirect(url_for('home.play', id=movie.id, page=1))
+
+    db.session.add(movie)
+    db.session.commit()
+    return render_template("home/play.html", movie=movie, form=form, page_data=page_data)

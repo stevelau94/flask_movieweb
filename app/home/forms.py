@@ -220,3 +220,24 @@ class PwdForm(FlaskForm):
             'class': "btn btn-success",
         }
     )
+
+
+class CommentForm(FlaskForm):
+    content = TextAreaField(
+        label='内容',
+        validators=[
+            DataRequired("请输入评论！")
+        ],
+        description="评论内容",
+        render_kw={
+            # "class": "form-control",
+            "id": "input_content"
+        }
+    )
+    submit = SubmitField(  # 按钮
+        "提交评论",
+        render_kw={
+            'class': "btn btn-success",
+            'id': "btn-sub"
+        }
+    )
