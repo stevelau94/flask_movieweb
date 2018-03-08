@@ -120,7 +120,7 @@
                     {% endif %}
 
                     <ol class="breadcrumb" style="margin-top:6px;">
-                        <li>全部评论(5)</li>
+                        <li>全部评论({{ movie.commentnum }})</li>
                     </ol>
 
                     {% if "user" in session %}
@@ -148,6 +148,10 @@
                             &nbsp;
                             <a class="btn btn-danger" id="btn-col"><span class="glyphicon glyphicon-heart"></span>&nbsp;收藏电影</a>
                         </form>
+                        <div class="col-md-12">
+                            <font style="color: green" id="show_col_msg"></font>
+                        </div>
+                        <div class="clearfix"></div>
                     {% endif %}
 
                     <ul class="commentList">
@@ -230,5 +234,29 @@
         });
     </script>
     <!--播放页面-->
+    <script>
+        $(document).ready(function () {
+            $("#btn-col").click(function () {
+                var mid = {{ movie.id }};
+                var uid = {{ session['user_id'] }};
+                $.ajax({
+                    url: "{{ url_for('home.moviecol_add') }}",
+                    type: "GET",
+                    data: "mid=" + mid + "&uid=" + uid,
+                    dataType: "json",
+                    success: function (res) {
+                        if (res.ok == 1) {
+                            $("#show_col_msg").empty();
+                            $("#show_col_msg").append("收藏成功！");
+                        } else {
+                            $("#show_col_msg").empty();
+                            $("#show_col_msg").append("收藏已存在！");
+                        }
+
+                    }
+                })
+            })
+        })
+    </script>
 
 {% endblock %}
